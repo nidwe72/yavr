@@ -44,7 +44,7 @@ if which('ffmpeg') is None:
     raise OSError('ffmpeg not found')
 
 def mknewfilename(filedir, filetag):
-    return filedir+os.sep+filetag+'.'+datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')+'.mp4'
+    return filedir+os.sep+filetag+'.'+datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')+'.mkv'
 
 
 class MyProgress(Progress):
@@ -73,7 +73,7 @@ class WebCap:
                        windowed = False,
                        load = False,
                        url = "https://example.com",
-                       out_file = 'output.mp4',
+                       out_file = 'output.mkv',
                        filetag = '',
                        out_dir = '',
                        duration = 0,
@@ -176,9 +176,11 @@ class WebCap:
             os.environ["DISPLAY"] = f":{self.display_id}.{self.screen}"
 
 
+
             options =Options()
-            options.add_argument("--start-fullscreen")
-            options.add_argument("--password-store=basic")
+            options.add_argument("start-fullscreen")
+            options.add_argument("password-store=basic")
+            options.add_argument("disable-infobars")
             options.add_experimental_option("useAutomationExtension", False)
             options.add_experimental_option("excludeSwitches", ["enable-automation"])
             #options.add_experimental_option("credentials_enable_service", False)
@@ -201,10 +203,9 @@ class WebCap:
             progress.update(progressTask, total=100, advance=100)
 
     def login(self):
-        username = 'edwin.roth@gmx.at'
-
+        username = 'foo'
         # password = getpass("Enter in your password: ")
-        password = 'Rustam6971'
+        password = 'bar'
 
         self.browser.get("https://www.amazon.de/")
 
