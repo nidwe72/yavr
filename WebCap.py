@@ -11,10 +11,15 @@ from rich.console import Console
 from rich.markdown import Markdown
 from pyfiglet import Figlet
 from rich.text import Text
+from selenium.webdriver import ActionChains
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
 from termcolor import colored
 from rich import print as richPrint
 from rich.panel import Panel
 from rich.table import Table, Column
+from selenium.webdriver.support import expected_conditions as EC
 
 try:
     from selenium import webdriver
@@ -62,7 +67,7 @@ class WebCap:
                        y_res = 720,
                        extent = '',
                        depth = 24,
-                       framerate = 10,
+                       framerate = 24,
                        screen = 0,
                        ffmpeg_opts = '',
                        windowed = False,
@@ -169,31 +174,122 @@ class WebCap:
             progressTask = progress.add_task("[yellow]starting browser".ljust(40), total=100)
 
             os.environ["DISPLAY"] = f":{self.display_id}.{self.screen}"
-            fp = webdriver.FirefoxProfile()
-            fp.set_preference("permissions.default.microphone", 1)
-            fp.set_preference("permissions.default.camera", 1)
-            self.browser = webdriver.Firefox(firefox_profile = fp)
+
+
+            options =Options()
+            options.add_argument("--start-fullscreen")
+            options.add_argument("--password-store=basic")
+            options.add_experimental_option("useAutomationExtension", False)
+            options.add_experimental_option("excludeSwitches", ["enable-automation"])
+            #options.add_experimental_option("credentials_enable_service", False)
+            #options.add_experimental_option("profile.password_manager_enabled", False)
+
+            # ChromeOptions
+            # chromeOptions = new
+            # ChromeOptions();
+            # chromeOptions.setExperimentalOption("useAutomationExtension", false);
+            # chromeOptions.setExperimentalOption("excludeSwitches", Collections.singletonList("enable-automation"));
+            # WebDriver
+            # driver = new
+            # ChromeDriver(chromeOptions);
+            self.browser = webdriver.Chrome(options=options)
+
             self.browser.maximize_window()
+
+            self.login()
             print('Browser started')
             progress.update(progressTask, total=100, advance=100)
+
+    def login(self):
+        username = 'edwin.roth@gmx.at'
+
+        # password = getpass("Enter in your password: ")
+        password = 'Rustam6971'
+
+        self.browser.get("https://www.amazon.de/")
+
+        # cookiesButton = driver.find_element('xpath','//*[@id="sp-cc-accept"]/span')
+        # cookiesButton = driver.find_element(by=By.XPATH,value='//*[@id="sp-cc-accept"]/span')
+        # cookiesButton.click()
+
+        cookiesButton = WebDriverWait(self.browser, 60).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="sp-cc-accept"]'))
+        )
+
+        print(cookiesButton)
+        cookiesButton.click()
+
+        signinButton = WebDriverWait(self.browser, 60).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="nav-link-accountList"]'))
+        )
+        print(signinButton)
+        signinButton.click()
+
+        # SignIn_button = driver.find_element('xpath','//*[@id="nav-link-accountList"]/span')
+        # SignIn_button.click()
+
+        # username_textbox = driver.find_element_by_id("ap_email")
+
+        username_textbox = WebDriverWait(self.browser, 60).until(
+            EC.presence_of_element_located((By.ID, 'ap_email'))
+        )
+        username_textbox.send_keys(username)
+
+        # Continue_button = driver.find_element_by_id("continue")
+        Continue_button = WebDriverWait(self.browser, 60).until(
+            EC.presence_of_element_located((By.ID, 'continue'))
+        )
+        Continue_button.submit()
+
+        # password_textbox = driver.find_element_by_id("ap_password")
+        password_textbox = WebDriverWait(self.browser, 60).until(
+            EC.presence_of_element_located((By.ID, 'ap_password'))
+        )
+        password_textbox.send_keys(password)
+
+        # SignIn_button = driver.find_element_by_id("auth-signin-button-announce")
+        SignIn_button = WebDriverWait(self.browser, 60).until(
+            EC.presence_of_element_located((By.ID, 'auth-signin-button-announce'))
+        )
+        SignIn_button.submit()
+
+        time.sleep(20)
+
+        self.browser.get("https://www.amazon.de/gp/video/detail/0HSWLTGV46J6HY9D3C3AJ89OAD/ref=atv_dp_atf_prime_sd_tv_play_t1ACAAAAAA0wh0?autoplay=1&t=0")
+
+        #time.sleep(60)
+
+        playButton = WebDriverWait(self.browser, 60).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@aria-label="Play"]'))
+        )
+        print(playButton)
+        playButton.click()
+
+        # actions = ActionChains(self.browser)
+        # actions.send_keys(Keys.SPACE)
+        # actions.perform()
+
+        time.sleep(20)
+
 
     def before_capture(self):
 
         with MyProgress() as progress:
             progressTask = progress.add_task("[yellow]Loading page".ljust(40), total=100)
 
-            if not self.load:
-                print('url', self.url)
-                self.browser.get(self.url)
-            if not self.windowed:
-                self.browser.fullscreen_window()
+            # if not self.load:
+            #     print('url', self.url)
+            #     self.browser.get(self.url)
+            # if not self.windowed:
+            #     self.browser.fullscreen_window()
 
             progress.update(progressTask, total=100, advance=100)
 
     def on_capture(self):
         if self.load:
-            print('Loading page#2', self.url)
-            self.browser.get(self.url)
+            pass
+            # print('Loading page#2', self.url)
+            # self.browser.get(self.url)
 
     def capture_loop(self):
         if self.interactive:

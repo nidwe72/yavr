@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    webCap = WebCap(duration=10)
+    webCap = WebCap(duration=5*60)
 
     # cap_object = profiles[args.profile](x_res = args.xres,
     #                                     y_res = args.yres,
